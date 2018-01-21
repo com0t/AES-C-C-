@@ -16,13 +16,13 @@ int main()
 	printf("chuong trinh bat dau!!\n");
 	
 	Encrypt(in,key,out);
-	printf("\nPlaint Text:\n\n");
+	printf("\nPlaint Text: ");
 	for (i=0;i<16;i++) {
 		printf("%.2x ",in[i]);
 	//	if ((i+1)%4==0&&i!=0) printf("\n");
 	}
 	
-	printf("\n\nCipher Key:\n\n");
+	printf("\n\nCipher Key:  ");
 	for (i=0;i<16;i++) {
 		printf("%.2x ",key[i]);
 		//if ((i+1)%4==0&&i!=0) printf("\n");
@@ -33,6 +33,12 @@ int main()
 		printf("%.2x ",out[i]);
 	}
 	printf("\n");
+	
+	printf("\nQua trinh giai ma\n\n");
+	Decrypt(out,key,out);
+	printf("Plaint Text: ");
+	for(i=0;i<16;i++)
+		printf("%.2x ",out[i]);
 }
 
 void Input(uint8_t *in,uint8_t *key)
@@ -47,8 +53,6 @@ void Input(uint8_t *in,uint8_t *key)
 	printf("Nhap Key: ");
 	fflush(stdin);
 	gets(tkey);
-	printf("\nLength: %d  ||  Plaint Text: %s\n",strlen(tin),tin);
-	printf("\nLength: %d  ||  Key: %s\n",strlen(tkey),tkey);
 	if (strlen(tin) != 32 || strlen(tkey) != 32)
 	{
 		printf("\nPlaint Text or Key is 16 bytes\n\n");
