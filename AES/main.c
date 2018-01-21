@@ -47,10 +47,12 @@ void Input(uint8_t *in,uint8_t *key)
 	uint8_t tkey[33];
 	uint8_t tin[33];
 	S:
-	printf("Nhap Plaint Text: ");
+	printf("Example Plaint Text: 3243f6a8885a308d313198a2e0370734\n");
+	printf("Example Cipher  Key: 2b7e151628aed2a6abf7158809cf4f3c\n\n");
+	printf("Input Plaint Text: ");
 	fflush(stdin);
 	gets(tin);
-	printf("Nhap Key: ");
+	printf("Input Key: ");
 	fflush(stdin);
 	gets(tkey);
 	if (strlen(tin) != 32 || strlen(tkey) != 32)
