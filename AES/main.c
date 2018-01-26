@@ -49,6 +49,7 @@ void Input(uint8_t *in,uint8_t *key)
 	S:
 	printf("Example Plaint Text: 3243f6a8885a308d313198a2e0370734\n");
 	printf("Example Cipher  Key: 2b7e151628aed2a6abf7158809cf4f3c\n\n");
+	printf("Cipher Text: 39 25 84 1d 02 dc 09 fb dc 11 85 97 19 6a 0b 32");
 	printf("Input Plaint Text: ");
 	fflush(stdin);
 	gets(tin);
