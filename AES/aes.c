@@ -1,7 +1,6 @@
-#include <stdint.h>
 #include "aes.h"
 
-uint8_t sbox[256] = 
+unsigned char sbox[256] = 
  {
     0x63, 0x7C, 0x77, 0x7B, 0xF2, 0x6B, 0x6F, 0xC5, 0x30, 0x01, 0x67, 0x2B, 0xFE, 0xD7, 0xAB, 0x76,
     0xCA, 0x82, 0xC9, 0x7D, 0xFA, 0x59, 0x47, 0xF0, 0xAD, 0xD4, 0xA2, 0xAF, 0x9C, 0xA4, 0x72, 0xC0,
@@ -21,7 +20,7 @@ uint8_t sbox[256] =
     0x8C, 0xA1, 0x89, 0x0D, 0xBF, 0xE6, 0x42, 0x68, 0x41, 0x99, 0x2D, 0x0F, 0xB0, 0x54, 0xBB, 0x16
  };
  
- uint8_t inv_sbox[256] = 
+unsigned char inv_sbox[256] = 
  {
     0x52, 0x09, 0x6A, 0xD5, 0x30, 0x36, 0xA5, 0x38, 0xBF, 0x40, 0xA3, 0x9E, 0x81, 0xF3, 0xD7, 0xFB,
     0x7C, 0xE3, 0x39, 0x82, 0x9B, 0x2F, 0xFF, 0x87, 0x34, 0x8E, 0x43, 0x44, 0xC4, 0xDE, 0xE9, 0xCB,
@@ -40,30 +39,30 @@ uint8_t sbox[256] =
     0xA0, 0xE0, 0x3B, 0x4D, 0xAE, 0x2A, 0xF5, 0xB0, 0xC8, 0xEB, 0xBB, 0x3C, 0x83, 0x53, 0x99, 0x61,
     0x17, 0x2B, 0x04, 0x7E, 0xBA, 0x77, 0xD6, 0x26, 0xE1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0C, 0x7D
  };
- uint8_t rcon[10] = { 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36};
+ unsigned char rcon[10] = { 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36};
  
-void Encrypt(uint8_t *in,uint8_t *key,uint8_t *out);
-void Decrypt(uint8_t *in,uint8_t *key,uint8_t *out);
+void Encrypt(unsigned char *in,unsigned char *key,unsigned char *out);
+void Decrypt(unsigned char *in,unsigned char *key,unsigned char *out);
 
 // OverView Function Encrypt
-void Expankey(uint8_t *key,uint8_t *expkey);
-void SubBytes(uint8_t *state);
-void AddRoundKey(uint8_t *state,uint8_t *expkey,uint8_t n);
-void MixColumns(uint8_t *state);
-void ShiftRows(uint8_t *state);
+void Expankey(unsigned char *key,unsigned char *expkey);
+void SubBytes(unsigned char *state);
+void AddRoundKey(unsigned char *state,unsigned char *expkey,unsigned char n);
+void MixColumns(unsigned char *state);
+void ShiftRows(unsigned char *state);
 
 
-//	OverView Function Decrypt
-void InvShiftRows(uint8_t *state);
-void InvSubBytes(uint8_t *state);
-void InvMixColumns(uint8_t *state);
+//    OverView Function Decrypt
+void InvShiftRows(unsigned char *state);
+void InvSubBytes(unsigned char *state);
+void InvMixColumns(unsigned char *state);
 
 // function for all
 
 // function multilply 2 number
-uint8_t gmul(uint8_t a, uint8_t b) {
-	uint8_t p = 0; /* the product of the multiplication */
-	while (a && b) {
+unsigned char gmul(unsigned char a, unsigned char b) {
+    unsigned char p = 0; /* the product of the multiplication */
+    while (a && b) {
             if (b & 1) /* if b is odd, then add the corresponding a to p (final product = sum of all a's corresponding to odd b's) */
                 p ^= a; /* since we're in GF(2^m), addition is an XOR */
 
@@ -72,81 +71,81 @@ uint8_t gmul(uint8_t a, uint8_t b) {
             else
                 a <<= 1; /* equivalent to a*2 */
             b >>= 1; /* equivalent to b // 2 */
-	}
-	return p;
+    }
+    return p;
 }
 
-void Expankey(uint8_t *key,uint8_t *expkey)
+void Expankey(unsigned char *key,unsigned char *expkey)
 {
-	uint8_t j,i;
-	for (j=0;j<16;j++)
-	{
-		expkey[j] = key[j];
-	}
-	
-	for (i=1;i<11;i++)
-	{
-		for(j=0;j<16;j++)
-		{
-			if (j>=0&&j<4) {
-				if (j==3) {
-					expkey[i*16+j] = sbox[expkey[i*16+j-7]];
-				} else {
-					expkey[i*16+j] = sbox[expkey[i*16+j-3]];
-				}
-				if (j==0) expkey[i*16+j] ^= expkey[i*16+j-16] ^ rcon[i-1];
-				else	expkey[i*16+j] ^= expkey[i*16+j-16];
-			} else {
-				expkey[i*16+j] = expkey[i*16+j-4] ^ expkey[i*16+j-16];
-			}
-		}
-	}
+    unsigned char j,i;
+    for (j=0;j<16;j++)
+    {
+        expkey[j] = key[j];
+    }
+    
+    for (i=1;i<11;i++)
+    {
+        for(j=0;j<16;j++)
+        {
+            if (j>=0&&j<4) {
+                if (j==3) {
+                    expkey[i*16+j] = sbox[expkey[i*16+j-7]];
+                } else {
+                    expkey[i*16+j] = sbox[expkey[i*16+j-3]];
+                }
+                if (j==0) expkey[i*16+j] ^= expkey[i*16+j-16] ^ rcon[i-1];
+                else    expkey[i*16+j] ^= expkey[i*16+j-16];
+            } else {
+                expkey[i*16+j] = expkey[i*16+j-4] ^ expkey[i*16+j-16];
+            }
+        }
+    }
 }
 
-void AddRoundKey(uint8_t *state,uint8_t *expkey,uint8_t n)
+void AddRoundKey(unsigned char *state,unsigned char *expkey,unsigned char n)
 {
-	uint8_t i;
-	for (i=0;i<16;i++){
-		state[i] ^= expkey[n-16+i];
-	}
+    unsigned char i;
+    for (i=0;i<16;i++){
+        state[i] ^= expkey[n-16+i];
+    }
 }
 
 // Begin function Encrypt
-void Encrypt(uint8_t *in,uint8_t *key,uint8_t *out)
+void Encrypt(unsigned char *in,unsigned char *key,unsigned char *out)
 {
-	uint8_t expkey[176],i,j;
-	uint8_t state[16];
-	
-	for (i=0;i<16;i++)
-		state[i] = in[i];
-	
-	Expankey(key,expkey);
-	AddRoundKey(state,expkey,16);
-	for (i=2;i<11;i++)
-	{
-		SubBytes(state);
-		ShiftRows(state);
-		MixColumns(state);
-		AddRoundKey(state,expkey,i*16);
-	}
-	SubBytes(state);
-	ShiftRows(state);
-	AddRoundKey(state,expkey,i*16);
-	
-	for (i=0;i<16;i++)
-		out[i] = state[i];
+    unsigned char expkey[176],i;
+    unsigned char state[16];
+    
+    for (i=0;i<16;i++)
+        state[i] = in[i];
+    
+    Expankey(key,expkey);
+    AddRoundKey(state,expkey,16);
+    for (i=2;i<11;i++)
+    {
+        SubBytes(state);
+        ShiftRows(state);
+        MixColumns(state);
+        AddRoundKey(state,expkey,i*16);
+    }
+    SubBytes(state);
+    ShiftRows(state);
+    AddRoundKey(state,expkey,i*16);
+    
+    for (i=0;i<16;i++)
+        out[i] = state[i];
 }
 
-void SubBytes(uint8_t *state)
+void SubBytes(unsigned char *state)
 {
-	uint8_t i;
-	for (i=0;i<16;i++)
-		state[i] = sbox[state[i]];
+    unsigned char i;
+    for (i=0;i<16;i++)
+        state[i] = sbox[state[i]];
 }
 
-void MixColumns(uint8_t *r)
+void MixColumns(unsigned char *state)
 {
-	unsigned char a[16];
+    unsigned char a[16];
     unsigned char b[16];
     unsigned char c;
     unsigned char h;
@@ -155,146 +154,150 @@ void MixColumns(uint8_t *r)
      * in Rijndael's Galois field
      * a[n] ^ b[n] is element n multiplied by 3 in Rijndael's Galois field */ 
     for (c = 0; c < 16; c++) {
-        a[c] = r[c];
+        a[c] = state[c];
         /* h is 0xff if the high bit of r[c] is set, 0 otherwise */
-        h = (unsigned char)((signed char)r[c] >> 7); /* arithmetic right shift, thus shifting in either zeros or ones */
-        b[c] = r[c] << 1; /* implicitly removes high bit because b[c] is an 8-bit char, so we xor by 0x1b and not 0x11b in the next line */
+        h = (unsigned char)((signed char)state[c] >> 7); /* arithmetic right shift, thus shifting in either zeros or ones */
+        b[c] = state[c] << 1; /* implicitly removes high bit because b[c] is an 8-bit char, so we xor by 0x1b and not 0x11b in the next line */
         b[c] ^= 0x1B & h; /* Rijndael's Galois field */
     }
     
-    r[0] = b[0] ^ a[3] ^ a[2] ^ b[1] ^ a[1]; /* 2 * a0 + a3 + a2 + 3 * a1 */
-    r[1] = b[1] ^ a[0] ^ a[3] ^ b[2] ^ a[2]; /* 2 * a1 + a0 + a3 + 3 * a2 */
-    r[2] = b[2] ^ a[1] ^ a[0] ^ b[3] ^ a[3]; /* 2 * a2 + a1 + a0 + 3 * a3 */
-    r[3] = b[3] ^ a[2] ^ a[1] ^ b[0] ^ a[0]; /* 2 * a3 + a2 + a1 + 3 * a0 */
+    state[0] = b[0] ^ a[3] ^ a[2] ^ b[1] ^ a[1]; /* 2 * a0 + a3 + a2 + 3 * a1 */
+    state[1] = b[1] ^ a[0] ^ a[3] ^ b[2] ^ a[2]; /* 2 * a1 + a0 + a3 + 3 * a2 */
+    state[2] = b[2] ^ a[1] ^ a[0] ^ b[3] ^ a[3]; /* 2 * a2 + a1 + a0 + 3 * a3 */
+    state[3] = b[3] ^ a[2] ^ a[1] ^ b[0] ^ a[0]; /* 2 * a3 + a2 + a1 + 3 * a0 */
     
-    r[4] = b[4] ^ a[7] ^ a[6] ^ b[5] ^ a[5]; 
-	r[5] = b[5] ^ a[4] ^ a[7] ^ b[6] ^ a[6]; 
-	r[6] = b[6] ^ a[5] ^ a[4] ^ b[7] ^ a[7]; 
-	r[7] = b[7] ^ a[6] ^ a[5] ^ b[4] ^ a[4];
-	
-	r[8] = b[8] ^ a[11] ^ a[10] ^ b[9] ^ a[9]; 
-	r[9] = b[9] ^ a[8] ^ a[11] ^ b[10] ^ a[10]; 
-	r[10] = b[10] ^ a[9] ^ a[8] ^ b[11] ^ a[11]; 
-	r[11] = b[11] ^ a[10] ^ a[9] ^ b[8] ^ a[8];
-	
-	r[12] = b[12] ^ a[15] ^ a[14] ^ b[13] ^ a[13]; 
-	r[13] = b[13] ^ a[12] ^ a[15] ^ b[14] ^ a[14]; 
-	r[14] = b[14] ^ a[13] ^ a[12] ^ b[15] ^ a[15]; 
-	r[15] = b[15] ^ a[14] ^ a[13] ^ b[12] ^ a[12];
-	
+    state[4] = b[4] ^ a[7] ^ a[6] ^ b[5] ^ a[5]; 
+    state[5] = b[5] ^ a[4] ^ a[7] ^ b[6] ^ a[6]; 
+    state[6] = b[6] ^ a[5] ^ a[4] ^ b[7] ^ a[7]; 
+    state[7] = b[7] ^ a[6] ^ a[5] ^ b[4] ^ a[4];
+    
+    state[8] = b[8] ^ a[11] ^ a[10] ^ b[9] ^ a[9]; 
+    state[9] = b[9] ^ a[8] ^ a[11] ^ b[10] ^ a[10]; 
+    state[10] = b[10] ^ a[9] ^ a[8] ^ b[11] ^ a[11]; 
+    state[11] = b[11] ^ a[10] ^ a[9] ^ b[8] ^ a[8];
+    
+    state[12] = b[12] ^ a[15] ^ a[14] ^ b[13] ^ a[13]; 
+    state[13] = b[13] ^ a[12] ^ a[15] ^ b[14] ^ a[14]; 
+    state[14] = b[14] ^ a[13] ^ a[12] ^ b[15] ^ a[15]; 
+    state[15] = b[15] ^ a[14] ^ a[13] ^ b[12] ^ a[12];
+    
 }
 
-void ShiftRows(uint8_t *state)
+void ShiftRows(unsigned char *state)
 {
-	uint8_t tmp[16],i;
-	
-	for (i=0;i<16;i++)
-		tmp[i]=state[i];
-		
-	state[0]=tmp[0];
-	state[1]=tmp[5];
-	state[2]=tmp[10];
-	state[3]=tmp[15];
-	
-	state[4]=tmp[4];
-	state[5]=tmp[9];
-	state[6]=tmp[14];
-	state[7]=tmp[3];
-	
-	state[8]=tmp[8];
-	state[9]=tmp[13];
-	state[10]=tmp[2];
-	state[11]=tmp[7];
-	
-	state[12]=tmp[12];
-	state[13]=tmp[1];
-	state[14]=tmp[6];
-	state[15]=tmp[11];
+    unsigned char tmp[16],i;
+    
+    for (i=0;i<16;i++)
+        tmp[i]=state[i];
+        
+    state[0]=tmp[0];
+    state[1]=tmp[5];
+    state[2]=tmp[10];
+    state[3]=tmp[15];
+    
+    state[4]=tmp[4];
+    state[5]=tmp[9];
+    state[6]=tmp[14];
+    state[7]=tmp[3];
+    
+    state[8]=tmp[8];
+    state[9]=tmp[13];
+    state[10]=tmp[2];
+    state[11]=tmp[7];
+    
+    state[12]=tmp[12];
+    state[13]=tmp[1];
+    state[14]=tmp[6];
+    state[15]=tmp[11];
 }
 
 
 // End function Encrypt
 
 //Begin function Decrypt
-void Decrypt(uint8_t *in,uint8_t *key,uint8_t *out)
+void Decrypt(unsigned char *in,unsigned char *key,unsigned char *out)
 {
-	uint8_t expkey[176],i,j;
-	
-	Expankey(key,expkey);
-	AddRoundKey(in,expkey,176);
-	InvShiftRows(in);
-	InvSubBytes(in);
-	for (i=10;i>1;i--)
-	{
-		AddRoundKey(in,expkey,i*16);
-		InvMixColumns(in);
-		InvShiftRows(in);
-		InvSubBytes(in);
-	}
-	AddRoundKey(in,key,16);
-	for (i=0;i<16;i++)
-		out[i] = in[i];
-		
+    unsigned char expkey[176],i,state[16];
+    
+    for(i=0;i<16;i++)
+        state[i]=in[i];
+    
+    Expankey(key,expkey);
+    AddRoundKey(state,expkey,176);
+    InvShiftRows(state);
+    InvSubBytes(state);
+    for (i=10;i>1;i--)
+    {
+        AddRoundKey(state,expkey,i*16);
+        InvMixColumns(state);
+        InvShiftRows(state);
+        InvSubBytes(state);
+    }
+    AddRoundKey(state,key,16);
+    for (i=0;i<16;i++)
+        out[i] = state[i];
+        
 }
 
-void InvShiftRows(uint8_t *state)
+void InvShiftRows(unsigned char *state)
 {
-	uint8_t tmp[16],i;
-	for (i=0;i<16;i++)
-		tmp[i] = state[i];
-	state[0] = tmp[0];
-	state[1] = tmp[13];
-	state[2] = tmp[10];
-	state[3] = tmp[7];
-	
-	state[4] = tmp[4];
-	state[5] = tmp[1];
-	state[6] = tmp[14];
-	state[7] = tmp[11];
-	
-	state[8] = tmp[8];
-	state[9] = tmp[5];
-	state[10] = tmp[2];
-	state[11] = tmp[15];
-	
-	state[12] = tmp[12];
-	state[13] = tmp[9];
-	state[14] = tmp[6];
-	state[15] = tmp[3];
+    unsigned char tmp[16],i;
+    for (i=0;i<16;i++)
+        tmp[i] = state[i];
+    state[0] = tmp[0];
+    state[1] = tmp[13];
+    state[2] = tmp[10];
+    state[3] = tmp[7];
+    
+    state[4] = tmp[4];
+    state[5] = tmp[1];
+    state[6] = tmp[14];
+    state[7] = tmp[11];
+    
+    state[8] = tmp[8];
+    state[9] = tmp[5];
+    state[10] = tmp[2];
+    state[11] = tmp[15];
+    
+    state[12] = tmp[12];
+    state[13] = tmp[9];
+    state[14] = tmp[6];
+    state[15] = tmp[3];
 }
 
-void InvSubBytes(uint8_t *state)
+void InvSubBytes(unsigned char *state)
 {
-	uint8_t i;
-	for (i=0;i<16;i++)
-		state[i] = inv_sbox[state[i]];
+    unsigned char i;
+    for (i=0;i<16;i++)
+        state[i] = inv_sbox[state[i]];
 }
 
 
-void InvMixColumns(uint8_t *state)
+void InvMixColumns(unsigned char *state)
 {
-	uint8_t tmp[16],i;
-	for (i=0;i<16;i++)
-		tmp[i] = state[i];
-	state[0] = gmul(0x09,tmp[3]) ^ gmul(0x0b,tmp[1]) ^ gmul(0x0d,tmp[2]) ^ gmul(0x0e,tmp[0]);
-	state[1] = gmul(0x09,tmp[0]) ^ gmul(0x0b,tmp[2]) ^ gmul(0x0d,tmp[3]) ^ gmul(0x0e,tmp[1]);
-	state[2] = gmul(0x09,tmp[1]) ^ gmul(0x0b,tmp[3]) ^ gmul(0x0d,tmp[0]) ^ gmul(0x0e,tmp[2]);
-	state[3] = gmul(0x09,tmp[2]) ^ gmul(0x0b,tmp[0]) ^ gmul(0x0d,tmp[1]) ^ gmul(0x0e,tmp[3]);
-	
-	state[4] = gmul(0x09,tmp[7]) ^ gmul(0x0b,tmp[5]) ^ gmul(0x0d,tmp[6]) ^ gmul(0x0e,tmp[4]);
-	state[5] = gmul(0x09,tmp[4]) ^ gmul(0x0b,tmp[6]) ^ gmul(0x0d,tmp[7]) ^ gmul(0x0e,tmp[5]);
-	state[6] = gmul(0x09,tmp[5]) ^ gmul(0x0b,tmp[7]) ^ gmul(0x0d,tmp[4]) ^ gmul(0x0e,tmp[6]);
-	state[7] = gmul(0x09,tmp[6]) ^ gmul(0x0b,tmp[4]) ^ gmul(0x0d,tmp[5]) ^ gmul(0x0e,tmp[7]);
-	
-	state[8] = gmul(0x09,tmp[11]) ^ gmul(0x0b,tmp[9]) ^ gmul(0x0d,tmp[10]) ^ gmul(0x0e,tmp[8]);
-	state[9] = gmul(0x09,tmp[8]) ^ gmul(0x0b,tmp[10]) ^ gmul(0x0d,tmp[11]) ^ gmul(0x0e,tmp[9]);
-	state[10] = gmul(0x09,tmp[9]) ^ gmul(0x0b,tmp[11]) ^ gmul(0x0d,tmp[8]) ^ gmul(0x0e,tmp[10]);
-	state[11] = gmul(0x09,tmp[10]) ^ gmul(0x0b,tmp[8]) ^ gmul(0x0d,tmp[9]) ^ gmul(0x0e,tmp[11]);
-	
-	state[12] = gmul(0x09,tmp[15]) ^ gmul(0x0b,tmp[13]) ^ gmul(0x0d,tmp[14]) ^ gmul(0x0e,tmp[12]);
-	state[13] = gmul(0x09,tmp[12]) ^ gmul(0x0b,tmp[14]) ^ gmul(0x0d,tmp[15]) ^ gmul(0x0e,tmp[13]);
-	state[14] = gmul(0x09,tmp[13]) ^ gmul(0x0b,tmp[15]) ^ gmul(0x0d,tmp[12]) ^ gmul(0x0e,tmp[14]);
-	state[15] = gmul(0x09,tmp[14]) ^ gmul(0x0b,tmp[12]) ^ gmul(0x0d,tmp[13]) ^ gmul(0x0e,tmp[15]);
-	
+    unsigned char tmp[16],i;
+    for (i=0;i<16;i++)
+        tmp[i] = state[i];
+    state[0] = gmul(0x09,tmp[3]) ^ gmul(0x0b,tmp[1]) ^ gmul(0x0d,tmp[2]) ^ gmul(0x0e,tmp[0]);
+    state[1] = gmul(0x09,tmp[0]) ^ gmul(0x0b,tmp[2]) ^ gmul(0x0d,tmp[3]) ^ gmul(0x0e,tmp[1]);
+    state[2] = gmul(0x09,tmp[1]) ^ gmul(0x0b,tmp[3]) ^ gmul(0x0d,tmp[0]) ^ gmul(0x0e,tmp[2]);
+    state[3] = gmul(0x09,tmp[2]) ^ gmul(0x0b,tmp[0]) ^ gmul(0x0d,tmp[1]) ^ gmul(0x0e,tmp[3]);
+    
+    state[4] = gmul(0x09,tmp[7]) ^ gmul(0x0b,tmp[5]) ^ gmul(0x0d,tmp[6]) ^ gmul(0x0e,tmp[4]);
+    state[5] = gmul(0x09,tmp[4]) ^ gmul(0x0b,tmp[6]) ^ gmul(0x0d,tmp[7]) ^ gmul(0x0e,tmp[5]);
+    state[6] = gmul(0x09,tmp[5]) ^ gmul(0x0b,tmp[7]) ^ gmul(0x0d,tmp[4]) ^ gmul(0x0e,tmp[6]);
+    state[7] = gmul(0x09,tmp[6]) ^ gmul(0x0b,tmp[4]) ^ gmul(0x0d,tmp[5]) ^ gmul(0x0e,tmp[7]);
+    
+    state[8] = gmul(0x09,tmp[11]) ^ gmul(0x0b,tmp[9]) ^ gmul(0x0d,tmp[10]) ^ gmul(0x0e,tmp[8]);
+    state[9] = gmul(0x09,tmp[8]) ^ gmul(0x0b,tmp[10]) ^ gmul(0x0d,tmp[11]) ^ gmul(0x0e,tmp[9]);
+    state[10] = gmul(0x09,tmp[9]) ^ gmul(0x0b,tmp[11]) ^ gmul(0x0d,tmp[8]) ^ gmul(0x0e,tmp[10]);
+    state[11] = gmul(0x09,tmp[10]) ^ gmul(0x0b,tmp[8]) ^ gmul(0x0d,tmp[9]) ^ gmul(0x0e,tmp[11]);
+    
+    state[12] = gmul(0x09,tmp[15]) ^ gmul(0x0b,tmp[13]) ^ gmul(0x0d,tmp[14]) ^ gmul(0x0e,tmp[12]);
+    state[13] = gmul(0x09,tmp[12]) ^ gmul(0x0b,tmp[14]) ^ gmul(0x0d,tmp[15]) ^ gmul(0x0e,tmp[13]);
+    state[14] = gmul(0x09,tmp[13]) ^ gmul(0x0b,tmp[15]) ^ gmul(0x0d,tmp[12]) ^ gmul(0x0e,tmp[14]);
+    state[15] = gmul(0x09,tmp[14]) ^ gmul(0x0b,tmp[12]) ^ gmul(0x0d,tmp[13]) ^ gmul(0x0e,tmp[15]);
+    
 }
 // End function Decrypt
+

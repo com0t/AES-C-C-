@@ -1,19 +1,20 @@
 #include <stdio.h>
-#include <stdint.h>
 #include <string.h>
 #include "aes.h"
 
-void Input(uint8_t *in,uint8_t *key);
+void Input(unsigned char *in,unsigned char *key);
 
 int main()
 {
-	uint8_t in[16] = {0x32,0x43,0xf6,0xa8,0x88,0x5a,0x30,0x8d,0x31,0x31,0x98,0xa2,0xe0,0x37,0x07,0x34};
-	uint8_t key[16] = {	0x2b,0x7e,0x15,0x16,0x28,0xae,0xd2,0xa6,0xab,0xf7,0x15,0x88,0x09,0xcf,0x4f,0x3c};
-	uint8_t out[16]= {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,}; // result: 39 25 84 1d 02 dc 09 fb dc 11 85 97 19 6a 0b 32
-	uint8_t expkey[176];
-	uint8_t i;
+	unsigned char in[16] = {0x32,0x43,0xf6,0xa8,0x88,0x5a,0x30,0x8d,0x31,0x31,0x98,0xa2,0xe0,0x37,0x07,0x34};
+	unsigned char key[16] = {0x2b,0x7e,0x15,0x16,0x28,0xae,0xd2,0xa6,0xab,0xf7,0x15,0x88,0x09,0xcf,0x4f,0x3c};
+	unsigned char out[16]= {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,}; 
+	// result: 39 25 84 1d 02 dc 09 fb dc 11 85 97 19 6a 0b 32
+	unsigned char i,k;
+	
 	Input(in,key);
-	printf("chuong trinh bat dau!!\n");
+	S:
+	printf("\nchuong trinh bat dau!!\n");
 	
 	Encrypt(in,key,out);
 	printf("\nPlaint Text: ");
@@ -39,17 +40,23 @@ int main()
 	printf("Plaint Text: ");
 	for(i=0;i<16;i++)
 		printf("%.2x ",out[i]);
+	printf("\nTiep tuc y/n: ");
+	fflush(stdin);
+	k=getchar();
+	if(k!='y') return 0;
+	system("cls");
+	goto S;
 }
 
-void Input(uint8_t *in,uint8_t *key)
+void Input(unsigned char *in,unsigned char *key)
 {
-	uint8_t i,j;
-	uint8_t tkey[33];
-	uint8_t tin[33];
+	unsigned char i,j;
+	unsigned char tkey[33];
+	unsigned char tin[33];
 	S:
 	printf("Example Plaint Text: 3243f6a8885a308d313198a2e0370734\n");
 	printf("Example Cipher  Key: 2b7e151628aed2a6abf7158809cf4f3c\n\n");
-	printf("Cipher Text: 39 25 84 1d 02 dc 09 fb dc 11 85 97 19 6a 0b 32");
+	printf("Cipher Text: 39 25 84 1d 02 dc 09 fb dc 11 85 97 19 6a 0b 32\n\n");
 	printf("Input Plaint Text: ");
 	fflush(stdin);
 	gets(tin);
